@@ -6,9 +6,11 @@ const Context = createContext()
 export const StateContext = ({children})=>{
     const [showCart, setShowCart] = useState(false)
     const [cartItems, setCartItems] = useState([])
-    const [totalPrice, setTotalPrice] = useState()
-    const [totalQty, setTotalQty] = useState()
+    const [totalPrice, setTotalPrice] = useState(0)
+    const [totalQty, setTotalQty] = useState(0)
     const [qty, setQty] = useState(1)
+    let foundProduct;
+    let index;
 
     const onAdd = (product,quantity)=>{
         const checkProductinCart = cartItems.find((item)=>item._id===product._id)
@@ -29,6 +31,32 @@ export const StateContext = ({children})=>{
         toast.success(`${qty} ${product.name} added to the cart.`)
     }
 
+    const onRemove = (product)=>{
+        foundProduct = cartItems.find( (e) => e._id === product._id)
+        const newCartItems = cartItems.filter( (e) => e._id != product._id);
+        setCartItems(newCartItems)
+        setTotalPrice((prevPrice)=> prevPrice - foundProduct.price*foundProduct.quantity)
+        setTotalQty((prevQty)=> prevQty - foundProduct.quantity)
+    }
+
+    const toggleCartItemQuantity = (id,value) => {
+        foundProduct = cartItems.find( (e) => e._id === id)
+        index = cartItems.findIndex( (e) => e._id === id)
+        const newCartItems = cartItems.filter( (e) => e._id != id);
+
+        if(value === 'inc'){
+            setCartItems([...newCartItems,{...foundProduct,quantity:foundProduct.quantity+1}])
+            setTotalPrice((prevPrice)=> prevPrice + foundProduct.price)
+            setTotalQty((prevQty)=> prevQty + 1)
+        }else if(value === 'dec'){
+            if(foundProduct.quantity > 1){
+                setCartItems([...newCartItems,{...foundProduct,quantity:foundProduct.quantity-1}])
+                setTotalPrice((prevPrice)=> prevPrice - foundProduct.price)
+                setTotalQty((prevQty)=> prevQty - 1)
+            }
+        }
+    }
+
     const incQty = ()=>{
         setQty((prevQty) => prevQty+1)
     }
@@ -40,9 +68,12 @@ export const StateContext = ({children})=>{
             return prevQty - 1
         })
     }
+    const setQtyToOne = ()=>{
+        setQty(1)
+    }
 
     return (
-        <Context.Provider value={{showCart,cartItems,totalPrice,totalQty,qty,incQty,decQty,onAdd,setShowCart}}>
+        <Context.Provider value={{setTotalQty,setTotalPrice,setCartItems,showCart,setQtyToOne,onRemove,cartItems,totalPrice,totalQty,qty,incQty,decQty,onAdd,setShowCart,toggleCartItemQuantity}}>
             {children}
         </Context.Provider>
     )
