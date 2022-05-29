@@ -1,8 +1,7 @@
 import Stripe from "stripe";
 
-const Private_key = "sk_test_51K2VUGLHdmbQBmKfzILVCzqPUpo9ojVjndkpzrNH3SMlf6BeHDIGzQEWpCBJUXpqKJmkuxfY327bpBHvWUBsWDak006rClhgHi"
-
-const stripe = new Stripe(Private_key)
+const Private_key = process.env.PRIVATE_STRIPE_TOKEN
+const stripe = new Stripe(process.env.PRIVATE_STRIPE_TOKEN)
 
 export default async function handler(req, res) {
     if (req.method === 'POST') {
